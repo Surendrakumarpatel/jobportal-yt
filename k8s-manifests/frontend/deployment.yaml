@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-jobportal
+  labels:
+    app: frontend-jobportal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-jobportal
+  template:
+    metadata:
+      labels:
+        app: frontend-jobportal
+    spec:
+      containers:
+      - name: frontend-jobportal
+        image: vihu360/frontend-jobportal
+        ports:
+        - containerPort: 80
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 5
+
+
+

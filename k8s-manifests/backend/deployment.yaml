@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-jobportal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend-jobportal
+  template:
+    metadata:
+      labels:
+        app: backend-jobportal
+    spec:
+      containers:
+        - name: backend-jobportal
+          image: vihu360/backend-jobportal:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: MONGO_URI
+              value: mongodb://mongodb-svc:27017/mongodb
+            - name: CLOUD_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: cloudinary-secret
+                  key: CLOUD_NAME
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cloudinary-secret
+                  key: API_KEY
+            - name: API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: cloudinary-secret
+                  key: API_SECRET
+
