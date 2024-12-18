@@ -16,7 +16,7 @@ const Applicants = () => {
         const fetchAllApplicants = async () => {
             try {
                 const res = await axios.get(`${APPLICATION_API_END_POINT}/${params.id}/applicants`, { withCredentials: true });
-                dispatch(setAllApplicants(res.data.job));
+                dispatch(setAllApplicants(res.data.applications));
             } catch (error) {
                 console.log(error);
             }
@@ -27,7 +27,7 @@ const Applicants = () => {
         <div>
             <Navbar />
             <div className='max-w-7xl mx-auto'>
-                <h1 className='font-bold text-xl my-5'>Applicants {applicants?.applications?.length}</h1>
+                <h1 className='font-bold text-xl my-5'>{applicants?.length} applicants</h1>
                 <ApplicantsTable />
             </div>
         </div>

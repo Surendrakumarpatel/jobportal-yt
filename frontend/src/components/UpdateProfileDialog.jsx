@@ -16,11 +16,10 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
 
     const [input, setInput] = useState({
         fullname: user?.fullname || "",
-        email: user?.email || "",
         phoneNumber: user?.phoneNumber || "",
-        bio: user?.profile?.bio || "",
-        skills: user?.profile?.skills?.map(skill => skill) || "",
-        file: user?.profile?.resume || ""
+        bio: user?.profile?.bio || "not specified",
+        skills: user?.profile?.skills || "",
+        file: user?.profile?.resume || "",
     });
     const dispatch = useDispatch();
 
@@ -37,7 +36,6 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
         e.preventDefault();
         const formData = new FormData();
         formData.append("fullname", input.fullname);
-        formData.append("email", input.email);
         formData.append("phoneNumber", input.phoneNumber);
         formData.append("bio", input.bio);
         formData.append("skills", input.skills);
@@ -63,7 +61,6 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
             setLoading(false);
         }
         setOpen(false);
-        console.log(input);
     }
 
 
@@ -94,9 +91,10 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
                                     id="email"
                                     name="email"
                                     type="email"
-                                    value={input.email}
+                                    value={user?.email}
                                     onChange={changeEventHandler}
                                     className="col-span-3"
+                                    disabled={true}
                                 />
                             </div>
                             <div className='grid grid-cols-4 items-center gap-4'>

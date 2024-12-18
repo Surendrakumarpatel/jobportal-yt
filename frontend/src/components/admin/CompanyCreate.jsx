@@ -12,7 +12,7 @@ import { setSingleCompany } from '@/redux/companySlice'
 
 const CompanyCreate = () => {
     const navigate = useNavigate();
-    const [companyName, setCompanyName] = useState();
+    const [companyName, setCompanyName] = useState("");
     const dispatch = useDispatch();
     const registerNewCompany = async () => {
         try {
@@ -25,11 +25,11 @@ const CompanyCreate = () => {
             if(res?.data?.success){
                 dispatch(setSingleCompany(res.data.company));
                 toast.success(res.data.message);
-                const companyId = res?.data?.company?._id;
+                const companyId = res?.data?.company?.id;
                 navigate(`/admin/companies/${companyId}`);
             }
         } catch (error) {
-            console.log(error);
+            console.log(error.message);
         }
     }
     return (

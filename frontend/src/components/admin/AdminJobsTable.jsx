@@ -6,6 +6,13 @@ import { Edit2, Eye, MoreHorizontal } from 'lucide-react'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
+//expects Job {
+//    id: number,
+//    title: string,    
+//    company_name: string,
+//    createdAt: string
+//}
+
 const AdminJobsTable = () => { 
     const {allAdminJobs, searchJobByText} = useSelector(store=>store.job);
 
@@ -14,6 +21,7 @@ const AdminJobsTable = () => {
 
     useEffect(()=>{ 
         console.log('called');
+        console.log(allAdminJobs)
         const filteredJobs = allAdminJobs.filter((job)=>{
             if(!searchJobByText){
                 return true;
@@ -39,18 +47,21 @@ const AdminJobsTable = () => {
                     {
                         filterJobs?.map((job) => (
                             <tr>
-                                <TableCell>{job?.company?.name}</TableCell>
+                                <TableCell>{job?.company_name}</TableCell>
                                 <TableCell>{job?.title}</TableCell>
                                 <TableCell>{job?.createdAt.split("T")[0]}</TableCell>
                                 <TableCell className="text-right cursor-pointer">
                                     <Popover>
                                         <PopoverTrigger><MoreHorizontal /></PopoverTrigger>
                                         <PopoverContent className="w-32">
-                                            <div onClick={()=> navigate(`/admin/companies/${job._id}`)} className='flex items-center gap-2 w-fit cursor-pointer'>
+
+                                            {/* problem here the id here should be the companny id*/ }
+                                            <div onClick={()=> navigate(`/admin/companies/${job.id}`)} className='flex items-center gap-2 w-fit cursor-pointer'>
                                                 <Edit2 className='w-4' />
                                                 <span>Edit</span>
                                             </div>
-                                            <div onClick={()=> navigate(`/admin/jobs/${job._id}/applicants`)} className='flex items-center w-fit gap-2 cursor-pointer mt-2'>
+
+                                            <div onClick={()=> navigate(`/admin/jobs/${job.id}/applicants`)} className='flex items-center w-fit gap-2 cursor-pointer mt-2'>
                                                 <Eye className='w-4'/>
                                                 <span>Applicants</span>
                                             </div>

@@ -1,6 +1,5 @@
-import { Job } from "../models/job.model.js";
+import { queryDB } from "../config/db.js";
 
-// admin post krega job
 export const postJob = async (req, res) => {
     try {
         const { title, description, requirements, salary, location, jobType, experience, position, companyId } = req.body;
@@ -12,18 +11,15 @@ export const postJob = async (req, res) => {
                 success: false
             })
         };
-        const job = await Job.create({
-            title,
-            description,
-            requirements: requirements.split(","),
-            salary: Number(salary),
-            location,
-            jobType,
-            experienceLevel: experience,
-            position,
-            company: companyId,
-            created_by: userId
-        });
+
+        await queryDB('INSERT INTO jobs (title, description, requirements, salary, location, jobType, experienceLevel, position, companyId, createdBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [title, description, requirements, Number(salary), location, jobType, experience, position, companyId, userId]);
+
+        // Get the last inserted ID
+        const [[{ id }]] = await queryDB('SELECT LAST_INSERT_ID() AS id');
+
+        // Now, you can use this `id` to query the inserted job record
+        const [[ job ]] = await queryDB('SELECT * FROM jobs WHERE id = ?', [id]);
+         
         return res.status(201).json({
             message: "New job created successfully.",
             job,
@@ -33,20 +29,23 @@ export const postJob = async (req, res) => {
         console.log(error);
     }
 }
-// student k liye
 export const getAllJobs = async (req, res) => {
     try {
-        const keyword = req.query.keyword || "";
-        const query = {
-            $or: [
-                { title: { $regex: keyword, $options: "i" } },
-                { description: { $regex: keyword, $options: "i" } },
-            ]
-        };
-        const jobs = await Job.find(query).populate({
-            path: "company"
-        }).sort({ createdAt: -1 });
-        if (!jobs) {
+        const state = req.query.state || "";
+        const industry=req.query.industry || "";
+        const salary = req.query.salary || "0";
+        const minBorne=salary.split("-")[0];
+
+        const query = `
+            SELECT jobs.*, companies.name as company_name, companies.description as company_description, companies.location as company_location, companies.website as company_website
+            FROM jobs
+            JOIN companies ON jobs.companyId = companies.id
+            WHERE (jobs.description LIKE ? OR jobs.title LIKE ? OR jobs.location LIKE ?) AND jobs.salary >= ?
+            ORDER BY jobs.createdAt DESC;
+        `;
+        const [jobs] = await queryDB(query, [`%${industry}%`, `%${industry}%`, `%${state}%`,`%${minBorne}%` ]);
+
+        if (jobs.length === 0) {
             return res.status(404).json({
                 message: "Jobs not found.",
                 success: false
@@ -60,33 +59,47 @@ export const getAllJobs = async (req, res) => {
         console.log(error);
     }
 }
-// student
 export const getJobById = async (req, res) => {
+    //returns job+status
+
     try {
         const jobId = req.params.id;
-        const job = await Job.findById(jobId).populate({
-            path:"applications"
-        });
-        if (!job) {
-            return res.status(404).json({
-                message: "Jobs not found.",
-                success: false
-            })
-        };
+        const userId = req.id;
+        const query = `
+            SELECT jobs.*, applications.status AS status, applications.applicantId
+            FROM jobs
+            LEFT JOIN applications 
+                ON jobs.id = applications.jobId
+            WHERE jobs.id = ? ;
+        `;
+    
+        const [ jobs] = await queryDB(query, [jobId]);
+        let userJobs=[];
+        let job;
+        userJobs = jobs.filter(job => job.applicantId === userId);
+        if (userJobs.length > 0) {
+            job = userJobs[0];
+        } else {
+            job = jobs[0];
+            job.status = null;
+        }
         return res.status(200).json({ job, success: true });
     } catch (error) {
         console.log(error);
     }
 }
-// admin kitne job create kra hai abhi tk
 export const getAdminJobs = async (req, res) => {
+    //returns job + company name
     try {
         const adminId = req.id;
-        const jobs = await Job.find({ created_by: adminId }).populate({
-            path:'company',
-            createdAt:-1
-        });
-        if (!jobs) {
+        const query = `
+            SELECT jobs.*, companies.name as company_name
+            FROM jobs
+            LEFT JOIN companies ON jobs.companyId = companies.id
+            WHERE jobs.createdBy = ?;
+        `;
+        const [jobs] = await queryDB(query, [adminId]);
+        if (jobs.length === 0) {
             return res.status(404).json({
                 message: "Jobs not found.",
                 success: false

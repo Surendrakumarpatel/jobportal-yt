@@ -29,11 +29,6 @@ const CompanySetup = () => {
         setInput({ ...input, [e.target.name]: e.target.value });
     }
 
-    const changeFileHandler = (e) => {
-        const file = e.target.files?.[0];
-        setInput({ ...input, file });
-    }
-
     const submitHandler = async (e) => {
         e.preventDefault();
         const formData = new FormData();
@@ -41,9 +36,7 @@ const CompanySetup = () => {
         formData.append("description", input.description);
         formData.append("website", input.website);
         formData.append("location", input.location);
-        if (input.file) {
-            formData.append("file", input.file);
-        }
+        
         try {
             setLoading(true);
             const res = await axios.put(`${COMPANY_API_END_POINT}/update/${params.id}`, formData, {
@@ -66,11 +59,10 @@ const CompanySetup = () => {
 
     useEffect(() => {
         setInput({
-            name: singleCompany.name || "",
-            description: singleCompany.description || "",
-            website: singleCompany.website || "",
-            location: singleCompany.location || "",
-            file: singleCompany.file || null
+            name: singleCompany?.name || "",
+            description: singleCompany?.description || "",
+            website: singleCompany?.website || "",
+            location: singleCompany?.location || "",
         })
     },[singleCompany]);
 
@@ -121,14 +113,6 @@ const CompanySetup = () => {
                                 name="location"
                                 value={input.location}
                                 onChange={changeEventHandler}
-                            />
-                        </div>
-                        <div>
-                            <Label>Logo</Label>
-                            <Input
-                                type="file"
-                                accept="image/*"
-                                onChange={changeFileHandler}
                             />
                         </div>
                     </div>
