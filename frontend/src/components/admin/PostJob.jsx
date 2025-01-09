@@ -29,6 +29,12 @@ const PostJob = () => {
     const navigate = useNavigate();
 
     const { companies } = useSelector(store => store.company);
+    
+//company register by user
+  const adminCompany = companies.filter(
+    (company) => company.userId === user._id
+  );
+  console.log(adminCompany);
     const changeEventHandler = (e) => {
         setInput({ ...input, [e.target.name]: e.target.value });
     };
@@ -154,7 +160,7 @@ const PostJob = () => {
                                     <SelectContent>
                                         <SelectGroup>
                                             {
-                                                companies.map((company) => {
+                                                adminCompany.map((company) => {
                                                     return (
                                                         <SelectItem value={company?.name?.toLowerCase()}>{company.name}</SelectItem>
                                                     )
