@@ -72,14 +72,24 @@ export const getCompanyById = async (req, res) => {
 export const updateCompany = async (req, res) => {
     try {
         const { name, description, website, location } = req.body;
- 
+
+        let fileUri, cloudResponse, logo;
         const file = req.file;
-        // idhar cloudinary ayega
-        const fileUri = getDataUri(file);
-        const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
-        const logo = cloudResponse.secure_url;
-    
-        const updateData = { name, description, website, location, logo };
+
+        // Upload to Cloudinary only if a file is provided
+        if (file) {
+            fileUri = getDataUri(file);
+            cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+            logo = cloudResponse.secure_url;
+        }
+
+        // Prepare update data, only include fields that are provided
+        const updateData = {};
+        if (name) updateData.name = name;
+        if (description) updateData.description = description;
+        if (website) updateData.website = website;
+        if (location) updateData.location = location;
+        if (logo) updateData.logo = logo; // Only update logo if a new file was uploaded
 
         const company = await Company.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
@@ -87,14 +97,20 @@ export const updateCompany = async (req, res) => {
             return res.status(404).json({
                 message: "Company not found.",
                 success: false
-            })
+            });
         }
+
         return res.status(200).json({
-            message:"Company information updated.",
-            success:true
-        })
+            message: "Company information updated.",
+            company,
+            success: true
+        });
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
+        return res.status(500).json({
+            message: "Internal server error",
+            success: false
+        });
     }
-}
+};
