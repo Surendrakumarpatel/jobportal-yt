@@ -9,6 +9,7 @@ import AppliedJobTable from './AppliedJobTable'
 import UpdateProfileDialog from './UpdateProfileDialog'
 import { useSelector } from 'react-redux'
 import useGetAppliedJobs from '@/hooks/useGetAppliedJobs'
+import myImage from "./../assets/profileAvatar.jpg";
 
 // const skills = ["Html", "Css", "Javascript", "Reactjs"]
 const isResume = true;
@@ -18,6 +19,30 @@ const Profile = () => {
     const [open, setOpen] = useState(false);
     const {user} = useSelector(store=>store.auth);
 
+    const handleDownloadAndOpen = async (fileUrl, fileName) => {
+        try {
+            const response = await axios.get(fileUrl, {
+                responseType: "blob", // Ensures the response is a file (binary)
+            });
+    
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const fileURL = URL.createObjectURL(blob);
+    
+            // Create a temporary anchor element to trigger download
+            const a = document.createElement("a");
+            a.href = fileURL;
+            a.download = fileName || "resume.pdf"; // Set download filename
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+    
+            // Open the file in a new tab after download
+            window.open(fileURL, "_blank");
+        } catch (error) {
+            console.error("Error downloading the PDF:", error);
+        }
+    };
+
     return (
         <div>
             <Navbar />
@@ -25,7 +50,7 @@ const Profile = () => {
                 <div className='flex justify-between'>
                     <div className='flex items-center gap-4'>
                         <Avatar className="h-24 w-24">
-                            <AvatarImage src="https://www.shutterstock.com/image-vector/circle-line-simple-design-logo-600nw-2174926871.jpg" alt="profile" />
+                            <AvatarImage src={user?.profile?.profilePhoto||myImage} alt="profile" />
                         </Avatar>
                         <div>
                             <h1 className='font-medium text-xl'>{user?.fullname}</h1>

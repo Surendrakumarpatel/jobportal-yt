@@ -19,6 +19,7 @@ const Signup = () => {
         email: "",
         phoneNumber: "",
         password: "",
+        confirmPassword: "",
         role: "",
         file: ""
     });
@@ -34,6 +35,18 @@ const Signup = () => {
     }
     const submitHandler = async (e) => {
         e.preventDefault();
+        if(!input.fullname||!input.email||!input.phoneNumber||!input.role){
+            toast.error("Fill all Details !");
+            return ;
+        }
+        else if (input.password.length < 8) {
+            toast.error("Password must be at least 8 characters long.");
+            return ;
+        }
+        else if (input.password !== input.confirmPassword) {
+            toast.error("Passwords do not match.");
+            return ;
+        }
         const formData = new FormData();    //formdata object
         formData.append("fullname", input.fullname);
         formData.append("email", input.email);
@@ -80,7 +93,7 @@ const Signup = () => {
                             value={input.fullname}
                             name="fullname"
                             onChange={changeEventHandler}
-                            placeholder="patel"
+                            placeholder="Full Name"
                         />
                     </div>
                     <div className='my-2'>
@@ -90,7 +103,7 @@ const Signup = () => {
                             value={input.email}
                             name="email"
                             onChange={changeEventHandler}
-                            placeholder="patel@gmail.com"
+                            placeholder="Email"
                         />
                     </div>
                     <div className='my-2'>
@@ -100,7 +113,7 @@ const Signup = () => {
                             value={input.phoneNumber}
                             name="phoneNumber"
                             onChange={changeEventHandler}
-                            placeholder="8080808080"
+                            placeholder="Number"
                         />
                     </div>
                     <div className='my-2'>
@@ -110,11 +123,21 @@ const Signup = () => {
                             value={input.password}
                             name="password"
                             onChange={changeEventHandler}
-                            placeholder="patel@gmail.com"
+                            placeholder="Password"
+                        />
+                    </div>
+                    <div className='my-2'>
+                        <Label>Confirm Password</Label>
+                        <Input
+                            type="password"
+                            value={input.confirmPassword}
+                            name="confirmPassword"
+                            onChange={changeEventHandler}
+                            placeholder="Confirm Password"
                         />
                     </div>
                     <div className='flex items-center justify-between'>
-                        <RadioGroup className="flex items-center gap-4 my-5">
+                        <RadioGroup className="flex items-center gap-5 my-5">
                             <div className="flex items-center space-x-2">
                                 <Input
                                     type="radio"
@@ -122,9 +145,9 @@ const Signup = () => {
                                     value="student"
                                     checked={input.role === 'student'}
                                     onChange={changeEventHandler}
-                                    className="cursor-pointer"
+                                    className="cursor-pointer w-5"
                                 />
-                                <Label htmlFor="r1">Student</Label>
+                                <Label htmlFor="r1">Job Seeker</Label>
                             </div>
                             <div className="flex items-center space-x-2">
                                 <Input
@@ -133,7 +156,7 @@ const Signup = () => {
                                     value="recruiter"
                                     checked={input.role === 'recruiter'}
                                     onChange={changeEventHandler}
-                                    className="cursor-pointer"
+                                    className="cursor-pointer w-5"
                                 />
                                 <Label htmlFor="r2">Recruiter</Label>
                             </div>
